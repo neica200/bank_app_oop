@@ -23,6 +23,7 @@ Acțiuni posibile:
   21. Limitează suma zilnica de tranzacționare
   22. Afișează tranzacțiile realizate cu un card
   23. Dezactivează definitiv un card
+
 Obiecte:
    - Client
    - Cont
