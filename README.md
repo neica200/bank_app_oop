@@ -24,7 +24,7 @@ Acțiuni posibile:
   22. Afișează tranzacțiile realizate cu un card
   23. Dezactivează definitiv un card
 Obiecte:
-- Client
+   - Client
    - Cont
      -  ContCurent
      -  ContEconomii
