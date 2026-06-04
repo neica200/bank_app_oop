@@ -16,6 +16,13 @@ public abstract class Tranzactie {
         this.timestamp = LocalDateTime.now();
     }
 
+    public Tranzactie(String id, double suma, String currency, LocalDateTime timestamp) {
+        this.id = id;
+        this.suma = suma;
+        this.currency = currency;
+        this.timestamp = timestamp;
+    }
+
     public abstract void execute();
 
     public String getId() {
@@ -36,6 +43,5 @@ public abstract class Tranzactie {
     @Override
     public String toString() {
         return "Tranzactia cu id-ul " + id + " | Suma: " + suma + " " + currency + " | Data: " + timestamp;
-
     }
 }

@@ -1,20 +1,18 @@
 package com.pao.project.banca.service;
+
 import com.pao.project.banca.model.Client;
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.pao.project.banca.repository.ClientRepository;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class ClientService {
     private static ClientService instance;
-    private Map<String,Client> clienti;
+    private final ClientRepository clientRepository = new ClientRepository();
 
-    private ClientService() {
-        this.clienti = new HashMap<>();
-    }
+    private ClientService() {}
 
-    public static ClientService getInstance() {
+    public static synchronized ClientService getInstance() {
         if (instance == null) {
             instance = new ClientService();
         }
@@ -22,20 +20,26 @@ public class ClientService {
     }
 
     public void adaugaClient(Client c) {
-        clienti.put(c.getId(), c);
-        System.out.println("Client adaugat: " + c.getNume());
+        AuditService.getInstance().logActiune("adauga_client");
+        clientRepository.save(c);
+        System.out.println("Client adaugat in DB: " + c.getNume());
     }
 
     public void stergeClient(String id) {
-        clienti.remove(id);
-        System.out.println("Client sters: " + id);
+        AuditService.getInstance().logActiune("sterge_client");
+
+        clientRepository.delete(id);
+        System.out.println("Client sters din DB: " + id);
     }
 
     public List<Client> listeazaToti() {
-        return new ArrayList<>(clienti.values());
+        AuditService.getInstance().logActiune("listeaza_toti_clientii");
+
+        return clientRepository.findAll();
     }
 
     public Optional<Client> cautaDupaId(String id) {
-        return Optional.ofNullable(clienti.get(id));
+        AuditService.getInstance().logActiune("cauta_client_by_id");
+        return clientRepository.findById(id);
     }
 }

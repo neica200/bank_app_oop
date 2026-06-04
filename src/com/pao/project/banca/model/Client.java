@@ -9,8 +9,16 @@ public class Client implements Comparable<Client>{
     private String prenume;
     private String email;
 
+
     public Client(String nume, String prenume, String email) {
         this.id = UUID.randomUUID().toString();
+        this.nume = nume;
+        this.prenume = prenume;
+        this.email = email;
+    }
+
+    public Client(String id, String nume, String prenume, String email) {
+        this.id = id;
         this.nume = nume;
         this.prenume = prenume;
         this.email = email;
@@ -45,12 +53,7 @@ public class Client implements Comparable<Client>{
 
     @Override
     public String toString() {
-        return "Client{" +
-                "id=" + id +
-                ", nume='" + nume + "'" +
-                ", prenume='" + prenume + "'" +
-                ", email='" + email + "'" +
-                '}';
+        return "Client{" + "id='" + id + '\'' + ", nume='" + nume + '\'' + ", prenume='" + prenume + '\'' + ", email='" + email + '\'' + '}';
     }
 
     @Override
@@ -58,7 +61,7 @@ public class Client implements Comparable<Client>{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Client client = (Client) o;
-        return id == client.id;
+        return Objects.equals(id, client.id);
     }
 
     @Override
@@ -66,6 +69,7 @@ public class Client implements Comparable<Client>{
         return Objects.hash(id);
     }
 
+    @Override
     public int compareTo(Client o) {
         int res = this.nume.compareTo(o.nume);
         if (res == 0) return this.prenume.compareTo(o.prenume);

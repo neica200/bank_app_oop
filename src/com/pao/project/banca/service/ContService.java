@@ -1,19 +1,18 @@
 package com.pao.project.banca.service;
+
 import com.pao.project.banca.model.*;
 import com.pao.project.banca.exception.*;
+import com.pao.project.banca.repository.ContRepository;
 
 import java.util.*;
 
 public class ContService {
     private static ContService instance;
-    private Map<IBAN, Cont> conturi;
+    private final ContRepository contRepository = new ContRepository();
 
+    private ContService() {}
 
-    private ContService() {
-        conturi = new HashMap<>();
-    }
-
-    public static ContService getInstance() {
+    public static synchronized ContService getInstance() {
         if (instance == null) {
             instance = new ContService();
         }
@@ -21,36 +20,49 @@ public class ContService {
     }
 
     public void adaugaCont(Cont cont) {
-        this.conturi.put(cont.getIBAN(), cont);
+        AuditService.getInstance().logActiune("adauga_cont_existent");
+
+        contRepository.save(cont);
     }
 
-    public void stergeCont(IBAN iban) {
-        this.conturi.remove(iban);
-        System.out.println("Contul " + iban + " a fost sters cu succes.");
+    public void stergeCont(IBAN iban) throws EntitateNegasitaException {
+        AuditService.getInstance().logActiune("sterge_cont");
+        gasesteCont(iban);
+        contRepository.delete(iban);
+        System.out.println("Contul " + iban + " a fost sters cu succes din DB.");
     }
 
-    public void deschideContCurent(Client titular, double overdraft) {
+    public ContCurent deschideContCurent(Client titular, double overdraft) {
+        AuditService.getInstance().logActiune("deschide_cont_curent");
         IBAN iban = new IBAN("RO" + UUID.randomUUID().toString().substring(0, 10).toUpperCase());
-        Cont c = new ContCurent(iban, titular, overdraft);
-        conturi.put(iban, c);
+        ContCurent c = new ContCurent(iban, titular, overdraft);
+        contRepository.save(c);
+        return c;
     }
 
-    public void deschideContEconomii(Client titular, double dobanda) {
+    public ContEconomii deschideContEconomii(Client titular, double dobanda) {
+        AuditService.getInstance().logActiune("deschide_cont_economii");
         IBAN iban = new IBAN("RO" + UUID.randomUUID().toString().substring(0, 10).toUpperCase());
-        Cont c = new ContEconomii(iban, titular, dobanda);
-        conturi.put(iban, c);
+        ContEconomii c = new ContEconomii(iban, titular, dobanda);
+        contRepository.save(c);
+        return c;
     }
-
 
     public Cont gasesteCont(IBAN iban) throws EntitateNegasitaException {
-        Cont cont = conturi.get(iban);
-        if (cont == null) {
-            throw new EntitateNegasitaException("Contul cu IBAN-ul " + iban + " nu exista!");
-        }
-        return cont;
+        AuditService.getInstance().logActiune("cauta_cont_by_iban");
+
+        return contRepository.findById(iban)
+                .orElseThrow(() -> new EntitateNegasitaException("Contul cu IBAN-ul " + iban + " nu exista!"));
+    }
+
+    public void actualizeazaCont(Cont cont) {
+        // Audit opțional dacă vrei
+        AuditService.getInstance().logActiune("actualizeaza_cont");
+        contRepository.update(cont);
     }
 
     public List<Cont> listeazaToateConturile() {
-        return new ArrayList<>(conturi.values());
+        AuditService.getInstance().logActiune("listeaza_toate_conturile");
+        return contRepository.findAll();
     }
 }
